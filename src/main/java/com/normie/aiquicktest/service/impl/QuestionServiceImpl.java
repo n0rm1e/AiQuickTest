@@ -12,6 +12,7 @@ import com.normie.aiquicktest.model.dto.question.QuestionQueryRequest;
 import com.normie.aiquicktest.model.entity.App;
 import com.normie.aiquicktest.model.entity.Question;
 import com.normie.aiquicktest.model.entity.User;
+import com.normie.aiquicktest.model.enums.AppTypeEnum;
 import com.normie.aiquicktest.model.vo.QuestionVO;
 import com.normie.aiquicktest.model.vo.UserVO;
 import com.normie.aiquicktest.service.AppService;
@@ -32,7 +33,6 @@ import java.util.stream.Collectors;
 
 /**
  * 题目服务实现
-
  */
 @Service
 @Slf4j
@@ -43,6 +43,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Resource
     private AppService appService;
+
 
     /**
      * 校验数据
@@ -171,6 +172,17 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
         questionVOPage.setRecords(questionVOList);
         return questionVOPage;
+    }
+
+    @Override
+    public String getQuestionGenerateUserMessage(App app, int questionNumber, int optionNumber) {
+        StringBuilder userMessage = new StringBuilder();
+        userMessage.append(app.getAppName()).append("\n");
+        userMessage.append(app.getAppDesc()).append("\n");
+        userMessage.append(AppTypeEnum.getEnumByValue(app.getAppType()).getText() + "类").append("\n");
+        userMessage.append(questionNumber).append("\n");
+        userMessage.append(optionNumber);
+        return userMessage.toString();
     }
 
 }

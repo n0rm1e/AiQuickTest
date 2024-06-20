@@ -10,12 +10,16 @@ import com.normie.aiquicktest.common.ResultUtils;
 import com.normie.aiquicktest.constant.UserConstant;
 import com.normie.aiquicktest.exception.BusinessException;
 import com.normie.aiquicktest.exception.ThrowUtils;
+import com.normie.aiquicktest.manager.AiManager;
 import com.normie.aiquicktest.model.dto.question.*;
+import com.normie.aiquicktest.model.entity.App;
 import com.normie.aiquicktest.model.entity.Question;
 import com.normie.aiquicktest.model.entity.User;
 import com.normie.aiquicktest.model.vo.QuestionVO;
+import com.normie.aiquicktest.service.AppService;
 import com.normie.aiquicktest.service.QuestionService;
 import com.normie.aiquicktest.service.UserService;
+import com.zhipu.oapi.service.v4.model.ChatMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +43,11 @@ public class QuestionController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private AppService appService;
+
+    @Resource
+    private AiManager aiManager;
     // region 增删改查
 
     /**
@@ -238,5 +247,41 @@ public class QuestionController {
         return ResultUtils.success(true);
     }
 
+    private static final String QUESTION_GENERATE_SYSTEM_MESSAGE = "你是一位严谨的出题专家，我会给你如下信息:...\n" +
+            "应用名称，\n" +
+            "【【【应用描述】】】\n" +
+            "应用类别，\n" +
+            "要生成的题目数，\n" +
+            "每个题目的选项数\n" +
+            "请你根据上述信息，按照以下步骤来出题:\n" +
+            "1.要求:题目和选项尽可能地短，题目不要包含序号，每题的选项数以我提供的为主，题目不能重复\n" +
+            "2:严格按照下面的 json 格式输出题目和选项\n" +
+            "[{\"options\":[{\"value\":\"选项内容\",\"key\":\"A\"},{\"value\":\"\",\"key\":\"B\"}],\"title\":\"题目标题\"}]\n" +
+            "title 是题目，options 是选项，每个选项的 key 按照英文字母序(比如 A、B、C、D)以此类推，value 是选项内容" +
+            "3.检查题目是否包含序号，若包含序号则去除序号\n" +
+            "4.返回的题目列表格式必须为JSON 数组";
+
+    /**
+     * AI 生成题目
+     * @param aiGenerateQuestionRequest
+     * @return
+     */
+    @PostMapping("/generate")
+    public BaseResponse<List<QuestionContentDTO>> generateQuestion(@RequestBody AiGenerateQuestionRequest aiGenerateQuestionRequest) {
+        ThrowUtils.throwIf(aiGenerateQuestionRequest == null, ErrorCode.PARAMS_ERROR);
+        Long appId = aiGenerateQuestionRequest.getAppId();
+        int questionNumber = aiGenerateQuestionRequest.getQuestionNumber();
+        int optionNumber = aiGenerateQuestionRequest.getOptionNumber();
+        App app = appService.getById(appId);
+        String userMessage = questionService.getQuestionGenerateUserMessage(app, questionNumber, optionNumber);
+        String result = aiManager.doSyncStableRequest(QUESTION_GENERATE_SYSTEM_MESSAGE, userMessage);
+
+        int start = result.indexOf('[');
+        int end = result.lastIndexOf(']');
+        String json = result.substring(start, end + 1);
+        List<QuestionContentDTO> questionContentDTOS = JSONUtil.toList(json, QuestionContentDTO.class);
+
+        return ResultUtils.success(questionContentDTOS);
+    }
     // endregion
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.normie.aiquicktest.model.dto.question.QuestionQueryRequest;
+import com.normie.aiquicktest.model.entity.App;
 import com.normie.aiquicktest.model.entity.Question;
 import com.normie.aiquicktest.model.vo.QuestionVO;
 
@@ -48,4 +49,13 @@ public interface QuestionService extends IService<Question> {
      * @return
      */
     Page<QuestionVO> getQuestionVOPage(Page<Question> questionPage, HttpServletRequest request);
+
+    /**
+     * 获取问题生成用户信息
+     * @param app
+     * @param questionNumber
+     * @param optionNumber
+     * @return
+     */
+    String getQuestionGenerateUserMessage(App app, int questionNumber, int optionNumber);
 }

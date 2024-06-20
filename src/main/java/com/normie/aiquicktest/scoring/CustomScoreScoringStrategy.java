@@ -17,7 +17,7 @@ import java.util.Optional;
 
 /**
  * 自定义打分类应用评分策略
-
+ *
  */
 @ScoringStrategyConfig(appType = 0, scoringStrategy = 0)
 public class CustomScoreScoringStrategy implements ScoringStrategy {

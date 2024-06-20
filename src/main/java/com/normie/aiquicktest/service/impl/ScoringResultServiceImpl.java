@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 
 /**
  * 评分结果服务实现
-
  */
 @Service
 @Slf4j

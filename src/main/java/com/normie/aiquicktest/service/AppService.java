@@ -48,4 +48,6 @@ public interface AppService extends IService<App> {
      * @return
      */
     Page<AppVO> getAppVOPage(Page<App> appPage, HttpServletRequest request);
+
+
 }

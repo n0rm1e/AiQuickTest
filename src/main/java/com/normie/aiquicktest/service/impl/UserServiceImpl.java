@@ -28,7 +28,6 @@ import org.springframework.util.DigestUtils;
 
 /**
  * 用户服务实现
-
  */
 @Service
 @Slf4j
@@ -37,7 +36,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 盐值，混淆密码
      */
-    public static final String SALT = "yupi";
+    public static final String SALT = "normie";
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {

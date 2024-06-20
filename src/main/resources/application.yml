@@ -72,3 +72,6 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.normie.aiquicktest.controller
+# AI配置
+ai:
+  apiKey: "076cad55b19e367015fb26265f8aaade.2SDOXNc6NruJh4CT"
