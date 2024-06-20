@@ -15,6 +15,7 @@ import com.normie.aiquicktest.model.dto.question.*;
 import com.normie.aiquicktest.model.entity.App;
 import com.normie.aiquicktest.model.entity.Question;
 import com.normie.aiquicktest.model.entity.User;
+import com.normie.aiquicktest.model.enums.AppTypeEnum;
 import com.normie.aiquicktest.model.vo.QuestionVO;
 import com.normie.aiquicktest.service.AppService;
 import com.normie.aiquicktest.service.QuestionService;
@@ -247,7 +248,7 @@ public class QuestionController {
         return ResultUtils.success(true);
     }
 
-    private static final String QUESTION_GENERATE_SYSTEM_MESSAGE = "你是一位严谨的出题专家，我会给你如下信息:...\n" +
+    private static final String TEST_QUESTION_GENERATE_SYSTEM_MESSAGE = "你是一位严谨的出题专家，我会给你如下信息:...\n" +
             "应用名称，\n" +
             "【【【应用描述】】】\n" +
             "应用类别，\n" +
@@ -260,7 +261,21 @@ public class QuestionController {
             "title 是题目，options 是选项，每个选项的 key 按照英文字母序(比如 A、B、C、D)以此类推，value 是选项内容" +
             "3.检查题目是否包含序号，若包含序号则去除序号\n" +
             "4.返回的题目列表格式必须为JSON 数组";
-
+    private static final String SCORING_QUESTION_GENERATE_SYSTEM_MESSAGE = "你是一位严谨的出题专家，我会给你如下信息:\n" +
+            "```\n" +
+            "应用名称，\n" +
+            "【【【应用描述】】】\n" +
+            "应用类别，\n" +
+            "要生成的题目数，\n" +
+            "每个题目的选项数\n" +
+            "```\n" +
+            "请你根据上述信息，按照以下步骤来出题:\n" +
+            "1.要求:题目和选项尽可能地短，题目不要包含序号，每题的选项数以我提供的为主，题目不能重复\n" +
+            "2.严格按照下面的 json 格式输出题目和选项，正确的选项score为1，其余选项为0。\n" +
+            "[{\"options\":[{\"value\":\"选项内容\",\"key\":\"A\",\"score\":1},{\"value\":\"\",\"key\":\"B\",\"score\":0}],“title\":\"题目标题\"}]\n" +
+            "title 是题目，options 是选项，每个选项的 key 按照英文字母序(比如 A、B、C、D)以此类推，value 是选项内容\n" +
+            "3.检查题目是否包含序号，若包含序号则去除序号\n" +
+            "4.返回的题目列表格式必须为 JSON 数组";
     /**
      * AI 生成题目
      * @param aiGenerateQuestionRequest
@@ -274,7 +289,16 @@ public class QuestionController {
         int optionNumber = aiGenerateQuestionRequest.getOptionNumber();
         App app = appService.getById(appId);
         String userMessage = questionService.getQuestionGenerateUserMessage(app, questionNumber, optionNumber);
-        String result = aiManager.doSyncStableRequest(QUESTION_GENERATE_SYSTEM_MESSAGE, userMessage);
+        // 判断应用类型，根据不同的应用类型生成不同的题目结构
+        // TODO 具体prompt还需要修改
+        String result;
+        if(app.getAppType() == 0){
+            result = aiManager.doSyncStableRequest(SCORING_QUESTION_GENERATE_SYSTEM_MESSAGE, userMessage);
+        }
+        else {
+            result = aiManager.doSyncStableRequest(TEST_QUESTION_GENERATE_SYSTEM_MESSAGE, userMessage);
+        }
+
 
         int start = result.indexOf('[');
         int end = result.lastIndexOf(']');

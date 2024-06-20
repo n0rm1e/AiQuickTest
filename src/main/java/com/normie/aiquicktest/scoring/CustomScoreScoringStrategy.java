@@ -17,7 +17,6 @@ import java.util.Optional;
 
 /**
  * 自定义打分类应用评分策略
- *
  */
 @ScoringStrategyConfig(appType = 0, scoringStrategy = 0)
 public class CustomScoreScoringStrategy implements ScoringStrategy {
@@ -48,15 +47,18 @@ public class CustomScoreScoringStrategy implements ScoringStrategy {
 
         // 遍历题目列表
         for (QuestionContentDTO questionContentDTO : questionContent) {
-            // 遍历答案列表
-            for (String answer : choices) {
+            // 遍历用户选择列表
+
+            for (int i = 0; i < choices.size(); i++) {
                 // 遍历题目中的选项
-                for (QuestionContentDTO.Option option : questionContentDTO.getOptions()) {
-                    // 如果答案和选项的key匹配
-                    if (option.getKey().equals(answer)) {
-                        int score = Optional.of(option.getScore()).orElse(0);
-                        totalScore += score;
-                    }
+                List<QuestionContentDTO.Option> options = questionContentDTO.getOptions();
+                // 如果答案和选项的key匹配
+                String key = options.get(i).getKey();
+                if (key.equals(choices.get(i))) {
+                    int score = Optional.of(options.get(i).getScore()).orElse(0);
+                    System.out.println(score);
+                    totalScore += score;
+                    break;
                 }
             }
         }
