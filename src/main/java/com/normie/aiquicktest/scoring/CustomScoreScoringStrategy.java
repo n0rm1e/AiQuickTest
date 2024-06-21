@@ -53,8 +53,8 @@ public class CustomScoreScoringStrategy implements ScoringStrategy {
         for (QuestionContentDTO questionContentDTO : questionContent) {
             List<QuestionContentDTO.Option> options = questionContentDTO.getOptions();
             for (QuestionContentDTO.Option option : options) {
-                if (option.getScore() != 0 ) {
-                    answerList.add(new Pair<>(option.getKey(),option.getScore()));
+                if (option.getScore() != 0) {
+                    answerList.add(new Pair<>(option.getKey(), option.getScore()));
                 }
             }
         }
