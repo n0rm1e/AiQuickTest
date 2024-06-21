@@ -2,6 +2,7 @@ package com.normie.aiquicktest.scoring;
 
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.normie.aiquicktest.common.Pair;
 import com.normie.aiquicktest.model.dto.question.QuestionContentDTO;
 import com.normie.aiquicktest.model.entity.App;
 import com.normie.aiquicktest.model.entity.Question;
@@ -10,9 +11,12 @@ import com.normie.aiquicktest.model.entity.UserAnswer;
 import com.normie.aiquicktest.model.vo.QuestionVO;
 import com.normie.aiquicktest.service.QuestionService;
 import com.normie.aiquicktest.service.ScoringResultService;
+import scala.Int;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -45,21 +49,20 @@ public class CustomScoreScoringStrategy implements ScoringStrategy {
         QuestionVO questionVO = QuestionVO.objToVo(question);
         List<QuestionContentDTO> questionContent = questionVO.getQuestionContent();
 
-        // 遍历题目列表
+        ArrayList<Pair<String, Integer>> answerList = new ArrayList<>();
         for (QuestionContentDTO questionContentDTO : questionContent) {
-            // 遍历用户选择列表
-
-            for (int i = 0; i < choices.size(); i++) {
-                // 遍历题目中的选项
-                List<QuestionContentDTO.Option> options = questionContentDTO.getOptions();
-                // 如果答案和选项的key匹配
-                String key = options.get(i).getKey();
-                if (key.equals(choices.get(i))) {
-                    int score = Optional.of(options.get(i).getScore()).orElse(0);
-                    System.out.println(score);
-                    totalScore += score;
-                    break;
+            List<QuestionContentDTO.Option> options = questionContentDTO.getOptions();
+            for (QuestionContentDTO.Option option : options) {
+                if (option.getScore() != 0 ) {
+                    answerList.add(new Pair<>(option.getKey(),option.getScore()));
                 }
+            }
+        }
+        // 遍历题目列表
+        // 遍历用户选择列表
+        for (int i = 0; i < choices.size(); i++) {
+            if (answerList.get(i).getLeft().equals(choices.get(i))) {
+                totalScore += answerList.get(i).getRight();
             }
         }
 
