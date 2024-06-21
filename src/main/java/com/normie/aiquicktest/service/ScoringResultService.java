@@ -3,15 +3,19 @@ package com.normie.aiquicktest.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.normie.aiquicktest.model.dto.question.QuestionContentDTO;
 import com.normie.aiquicktest.model.dto.scoringResult.ScoringResultQueryRequest;
+import com.normie.aiquicktest.model.entity.App;
 import com.normie.aiquicktest.model.entity.ScoringResult;
 import com.normie.aiquicktest.model.vo.ScoringResultVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 评分结果服务
-
  */
 public interface ScoringResultService extends IService<ScoringResult> {
 
@@ -19,7 +23,7 @@ public interface ScoringResultService extends IService<ScoringResult> {
      * 校验数据
      *
      * @param scoringResult
-     * @param add 对创建的数据进行校验
+     * @param add           对创建的数据进行校验
      */
     void validScoringResult(ScoringResult scoringResult, boolean add);
 
@@ -30,7 +34,7 @@ public interface ScoringResultService extends IService<ScoringResult> {
      * @return
      */
     QueryWrapper<ScoringResult> getQueryWrapper(ScoringResultQueryRequest scoringResultQueryRequest);
-    
+
     /**
      * 获取评分结果封装
      *
@@ -48,4 +52,12 @@ public interface ScoringResultService extends IService<ScoringResult> {
      * @return
      */
     Page<ScoringResultVO> getScoringResultVOPage(Page<ScoringResult> scoringResultPage, HttpServletRequest request);
+
+
+    /**
+     * @param choices
+     * @param app
+     * @return
+     */
+    String getScoringGenerateUserMessage(List<String> choices, List<QuestionContentDTO> questionContent, App app);
 }

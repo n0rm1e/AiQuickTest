@@ -6,7 +6,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class AiGenerateScoringResultRequest implements Serializable {
+public class AIGenerateScoringResultRequest implements Serializable {
     /**
      * 用户回答
      */

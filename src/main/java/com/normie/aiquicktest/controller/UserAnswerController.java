@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 用户答案接口
@@ -77,7 +78,7 @@ public class UserAnswerController {
         ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR);
         // 在应用未通过审核时，仅允许用户自己答题
         if (!ReviewStatusEnum.PASS.equals(ReviewStatusEnum.getEnumByValue(app.getReviewStatus()))
-                && (userAnswer.getUserId() != app.getUserId())){
+                && (!Objects.equals(userAnswer.getUserId(), app.getUserId()))){
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "应用未通过审核，无法答题");
         }
         // 填充默认值

@@ -1,6 +1,7 @@
 package com.normie.aiquicktest.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -8,10 +9,13 @@ import com.normie.aiquicktest.common.ErrorCode;
 import com.normie.aiquicktest.constant.CommonConstant;
 import com.normie.aiquicktest.exception.ThrowUtils;
 import com.normie.aiquicktest.mapper.ScoringResultMapper;
+import com.normie.aiquicktest.model.dto.question.QuestionContentDTO;
 import com.normie.aiquicktest.model.dto.scoringResult.ScoringResultQueryRequest;
+import com.normie.aiquicktest.model.dto.userAnswer.QuestionAnswerDTO;
 import com.normie.aiquicktest.model.entity.App;
 import com.normie.aiquicktest.model.entity.ScoringResult;
 import com.normie.aiquicktest.model.entity.User;
+import com.normie.aiquicktest.model.enums.AppTypeEnum;
 import com.normie.aiquicktest.model.vo.ScoringResultVO;
 import com.normie.aiquicktest.model.vo.UserVO;
 import com.normie.aiquicktest.service.AppService;
@@ -25,6 +29,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -190,4 +196,30 @@ public class ScoringResultServiceImpl extends ServiceImpl<ScoringResultMapper, S
         return scoringResultVOPage;
     }
 
+    /**
+     * 生成AI评分用户信息
+     * @param choices
+     * @param questionContent
+     * @param app
+     * @return
+     */
+    @Override
+    public String getScoringGenerateUserMessage(List<String> choices, List<QuestionContentDTO> questionContent, App app) {
+        System.out.println(choices);
+        System.out.println(questionContent);
+        StringBuilder userMessage = new StringBuilder();
+        userMessage.append(app.getAppName()).append("\n");
+        userMessage.append(app.getAppDesc()).append("\n");
+        ArrayList<QuestionAnswerDTO> questionAnswerDTOS = new ArrayList<>();
+        for (int i = 0; i < choices.size(); i++) {
+            List<QuestionContentDTO.Option> options = questionContent.get(i).getOptions();
+            for (int j = 0; j < options.size(); j++) {
+                if (choices.get(i).equals(options.get(j).getKey())) {
+                    questionAnswerDTOS.add(new QuestionAnswerDTO(questionContent.get(i).getTitle(), options.get(j).getValue()));
+                }
+            }
+        }
+        userMessage.append(JSONUtil.toJsonStr(questionAnswerDTOS));
+        return userMessage.toString();
+    }
 }

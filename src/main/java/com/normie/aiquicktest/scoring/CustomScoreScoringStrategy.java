@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 自定义打分类应用评分策略
+ * 自定义得分类应用评分策略
  */
 @ScoringStrategyConfig(appType = 0, scoringStrategy = 0)
 public class CustomScoreScoringStrategy implements ScoringStrategy {
@@ -34,7 +34,7 @@ public class CustomScoreScoringStrategy implements ScoringStrategy {
     @Override
     public UserAnswer doScore(List<String> choices, App app) throws Exception {
         Long appId = app.getId();
-        // 1. 根据 id 查询到题目和题目结果信息（按分数降序排序）
+        // 根据 id 查询到题目和题目结果信息（按分数降序排序）
         Question question = questionService.getOne(
                 Wrappers.lambdaQuery(Question.class).eq(Question::getAppId, appId)
         );
@@ -44,11 +44,12 @@ public class CustomScoreScoringStrategy implements ScoringStrategy {
                         .orderByDesc(ScoringResult::getResultScoreRange)
         );
 
-        // 2. 统计用户的总得分
+        // 统计用户的总得分
         int totalScore = 0;
         QuestionVO questionVO = QuestionVO.objToVo(question);
         List<QuestionContentDTO> questionContent = questionVO.getQuestionContent();
 
+        // 获取答案和得分列表
         ArrayList<Pair<String, Integer>> answerList = new ArrayList<>();
         for (QuestionContentDTO questionContentDTO : questionContent) {
             List<QuestionContentDTO.Option> options = questionContentDTO.getOptions();
@@ -58,15 +59,14 @@ public class CustomScoreScoringStrategy implements ScoringStrategy {
                 }
             }
         }
-        // 遍历题目列表
-        // 遍历用户选择列表
+        // 判题并加分
         for (int i = 0; i < choices.size(); i++) {
             if (answerList.get(i).getLeft().equals(choices.get(i))) {
                 totalScore += answerList.get(i).getRight();
             }
         }
 
-        // 3. 遍历得分结果，找到第一个用户分数大于得分范围的结果，作为最终结果
+        // 遍历得分结果，找到第一个用户分数大于得分范围的结果，作为最终结果
         ScoringResult maxScoringResult = scoringResultList.get(0);
         for (ScoringResult scoringResult : scoringResultList) {
             if (totalScore >= scoringResult.getResultScoreRange()) {

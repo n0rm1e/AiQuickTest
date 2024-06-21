@@ -7,7 +7,6 @@ import java.util.List;
 
 /**
  * 评分策略
-
  */
 public interface ScoringStrategy {
 
