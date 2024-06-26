@@ -2,7 +2,7 @@
 # @author <a href="https://github.com/n0rm1e">normie</a>
 
 -- 创建库
-create database if not exists yudada;
+create database if not exists aiquicktest;
 
 -- 切换库
 use yudada;
